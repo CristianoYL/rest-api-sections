@@ -8,11 +8,11 @@ In this tutorial, we will not cover how to set up a server on any hosting platfo
 In this tutorial, we will assume you have a server set up already, and we will introduce the deployment process in the following order:
 
 - [Connecting to the server using `SSH`](DigitalOcean%20Tutorial.md#connecting-to-our-server).
-- [Creating and configuring a `UNIX` user](DigitalOcean%20Tutorial.md#creating-another-user).
-- [Setting up `PostgreSQL` database](DigitalOcean%20Tutorial.md#configuring-postgres).
-- [Getting project code from `GitHub`](DigitalOcean%20Tutorial.md#getting-code-from-github).
-- [Configuring `uWSGI` for our project](DigitalOcean%20Tutorial.md#uwsgi).
-- [Configuring `nginx` for our project](DigitalOcean%20Tutorial.md#nginx).
+- [Creating and configuring a `UNIX` user](How%20To%20Deploy%20Python%20App%20Using%20uWSGI%20And%20Nginx.md#creating-another-user).
+- [Setting up `PostgreSQL` database](How%20To%20Deploy%20Python%20App%20Using%20uWSGI%20And%20Nginx.md#configuring-postgres).
+- [Getting project code from `GitHub`](How%20To%20Deploy%20Python%20App%20Using%20uWSGI%20And%20Nginx.md#getting-code-from-github).
+- [Configuring `uWSGI` for our project](How%20To%20Deploy%20Python%20App%20Using%20uWSGI%20And%20Nginx.md#uwsgi).
+- [Configuring `nginx` for our project](How%20To%20Deploy%20Python%20App%20Using%20uWSGI%20And%20Nginx.md#nginx).
 
 If you are a first time learner, we highly recommend you to follow through the whole tutorial so that you can get familiar with it and may be less likely to run into error. However, if you are only looking for information on a specific subject, please feel free to use the above links to navigate to according sections.
 
@@ -44,7 +44,7 @@ Note that this is a just an example to install different packages using one comm
 
 # Creating another user
 
-Since the `root` user is the most powerful, essentially a root user can do everything on the server, so we may want to limit access to it to improve security. So in this section, we will create a new user and configure it to "act like" a `root` user but with certain limitations, and we will login as this user from then on. It is highly recommended to do so, but if you choose not to follow this practice and simply want to login as the `root` user anyway, you may click [here to skip to the next section](DigitalOcean%20Tutorial.md#configuring-postgres).
+Since the `root` user is the most powerful, essentially a root user can do everything on the server, so we may want to limit access to it to improve security. So in this section, we will create a new user and configure it to "act like" a `root` user but with certain limitations, and we will login as this user from then on. It is highly recommended to do so, but if you choose not to follow this practice and simply want to login as the `root` user anyway, you may click [here to skip to the next section](How%20To%20Deploy%20Python%20App%20Using%20uWSGI%20And%20Nginx.md#configuring-postgres).
 
 ## Hello John Doe
 
