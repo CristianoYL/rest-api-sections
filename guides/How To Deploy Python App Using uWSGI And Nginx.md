@@ -1,9 +1,10 @@
 # Overview
 
-This tutorial covers the basic steps on deploying a `Flask` app onto a public server using `uWSGI` and `nginx`.
+This tutorial covers the basic steps of deploying a Python application onto a public server using `uWSGI` and `nginx`. We will be using a sample project, a Flask REST API, for demonstration, however, the deployment process should remain similar for any other Python applications.
 
-In this tutorial, we will not cover how to set up a server on any hosting platforms, however, if you are looking for such a tutorial, you may take a look at this one: [DigitalOcean Tutorial](DigitalOcean%20Tutorial.md), in which you will learn the basics on setting up a server from the beginning on a cloud hosting platform called DigitalOcean. The procedure should be similar for setting up server on other platforms as well, such as AWS (Amazon Web Service).
+In this tutorial, we will not cover how to set up a server on any hosting platforms, however, if you are looking for such a tutorial, you may take a look at this one: [DigitalOcean Tutorial](DigitalOcean%20Tutorial.md), in which you will learn the basics on setting up a server from the beginning on a cloud hosting platform called `DigitalOcean`. The procedure should be similar for setting up server on other platforms as well, such as `AWS` (Amazon Web Service).
 
+# Quick links
 In this tutorial, we will assume you have a server set up already, and we will introduce the deployment process in the following order:
 
 - [Connecting to the server using `SSH`](DigitalOcean%20Tutorial.md#connecting-to-our-server).
@@ -13,15 +14,17 @@ In this tutorial, we will assume you have a server set up already, and we will i
 - [Configuring `uWSGI` for our project](DigitalOcean%20Tutorial.md#uwsgi).
 - [Configuring `nginx` for our project](DigitalOcean%20Tutorial.md#nginx).
 
+If you are a first time learner, we highly recommend you to follow through the whole tutorial so that you can get familiar with it and may be less likely to run into error. However, if you are only looking for information on a specific subject, please feel free to use the above links to navigate to according sections.
+
 # Connecting to our server
 
-In order to connect to our server, we need to use a command called SSH (Secure Shell). We can SSH our server using the command:
+In order to connect to our server, we need to use a tool called `SSH` (Secure Shell). We can SSH our server using the command:
 
 ```
 ssh root@<your server ip>
 ```
 
-You will be asked for the root password. Beware that `SSH` command only works on Unix, not on Windows. However, there are plenty of software that you can use to SSH from Windows, [PuTTy](http://www.putty.org/) is a popular choice.
+You will be asked for the root password (or the SSH key if you have set it up previously). Beware that `SSH` command only works on `UNIX`, not on `Windows`. However, there are plenty of software that you can use to SSH from Windows, [PuTTy](http://www.putty.org/) is a popular choice:
 
 <img src='assets/Flask Deployment/putty.png'>
 
@@ -41,11 +44,11 @@ Note that this is a just an example to install different packages using one comm
 
 # Creating another user
 
-Since the `root` user is the most powerful, essentially a root user can do everything on the server, so we may want to limit access to it to improve security. So in this section, we will create a new user and configure it to "act like" a `root` user but with certain limitations. And we will be logging as this user from now on. It is highly recommended to do so, but if you choose not to follow this practice and simply want to login as the `root` user anyway, you may click [here to skip to the next section](DigitalOcean%20Tutorial.md#configuring-postgres).
+Since the `root` user is the most powerful, essentially a root user can do everything on the server, so we may want to limit access to it to improve security. So in this section, we will create a new user and configure it to "act like" a `root` user but with certain limitations, and we will login as this user from then on. It is highly recommended to do so, but if you choose not to follow this practice and simply want to login as the `root` user anyway, you may click [here to skip to the next section](DigitalOcean%20Tutorial.md#configuring-postgres).
 
 ## Hello John Doe
 
-In this section, we will create a user named `johndoe`. You may choose any name you want, just remember to swap `johndoe` with your username for each command. We create a new user `johndoe` with the following command:
+In this section, we will create a user named `johndoe`. You may choose any name you want, just remember to swap `johndoe` with your username for each command and configuration. We can create a new user `johndoe` with the following command:
 
 ```
 adduser johndoe
@@ -99,11 +102,30 @@ And we will be prompted with another text file. Navigate to the section which co
 PermitRootLogin yes
 ```
 
-Press `i` on your keyboard to enter insert mode and change the `yes` to `no` to disallow login as root. Then go to the bottom of the file and add the following lines:
+Press `i` on your keyboard to enter insert mode and change the `yes` to `no` to disallow login as root.
+
+Next, look for a configuration called `PasswordAuthentication`:
+
+```
+# Change to no to disable tunnelled clear text passwords
+PasswordAuthentication yes
+```
+
+ **Important:** make sure to set it as `yes` so that you can use your password to login in the future. It should be set to `yes` already, however, there are some platforms that enforces SSH key authentication and set it to `no` instead.
+
+Then go to the bottom of the file and add the following lines:
 
 ```
 AllowUsers johndoe
 ```
+
+For this section, if you already have other users on the server, make sure to include them as well. On AWS, for instance, a user named `ubuntu` is initialized and used to login for the first time. If you choose to create a new user, say `johndoe`, then you will need to add them together into `AllowUsers`:
+
+```
+AllowUsers johndoe ubuntu
+```
+
+Otherwise, you will no longer be able to login as `ubuntu` in the future.
 
 Next, press `Esc` to quit insert mode, press `:` (colon) to enable the command function and enter `wq` to write and quit (after hitting `ENTER` to confirm).
 
@@ -136,7 +158,7 @@ apt-get install postgresql postgresql-contrib
 
 ## Creating a Postgres user
 
-We use the following command to create a user:
+We use the following command to switch to a super user in Postgres named `postgres` and use it to create a Postgres user:
 
 ```
 sudo -i -u postgres
@@ -173,9 +195,9 @@ To quit Postgres:
 \q
 ```
 
-### Improve security on our PostgreSQL database
+## Improve security on our PostgreSQL database
 
-However, notice that we've created a password for the Postgres user but never have to use it just because we used the same username in UNIX and Postgres. It is safer to require a password. Use the below command to configure Postgres security options.
+However, notice that we've created a password for the Postgres user but never have to use it just because we used the same username in UNIX and Postgres. It is safer to require a password when connecting to the database. Use the below command to configure Postgres security options.
 
 ```
 sudo vi /etc/postgresql/9.5/main/pg_hba.conf
@@ -215,7 +237,7 @@ to enable password authentication.
 
 # Getting code from GitHub
 
-In this section, we will pull our code from `GitHub`, which integrates a popular VCS (Version Control System) called `Git`. `GitHub` is a very good tool to manage and access your code both locally and remotely.
+In this section, we will pull our code from `GitHub`, which integrates a popular VCS (Version Control System) called `Git`. `Git` is a very good tool to manage and access your code both locally and remotely.
 
 ## Setting up our app folder
 
@@ -286,7 +308,7 @@ pip install -r requirements.txt
 
 Note that when installing these requirements, we are inside the virtual environment `venv`, so all the libraries are installed into `venv`, and once we quit `venv`, these libraries won't take effect.
 
-*Hint:* to quit virtual environment, simply use command:
+*Hint:* to quit virtual environment, use command:
 
 ```
 deactivate
@@ -294,7 +316,7 @@ deactivate
 
 # uWSGI
 
-In this section, we will be using `uWSGI` to run the app for us, in this way, we can run it in multiple threads within multiple processes. It also allow us to log more easily. More details on `uWSGI` can be found [here](https://uwsgi-docs.readthedocs.io/en/latest/).
+In this section, we will be using `uWSGI` to run the app for us, in this way, we can run our app in multiple threads within multiple processes. It also allow us to log more easily. More details on `uWSGI` can be found [here](https://uwsgi-docs.readthedocs.io/en/latest/).
 
 First, we define a `uWSGI` service in the system by:
 
@@ -399,7 +421,7 @@ But if there is any error in our code, it will also be reflected in the log.
 
 # Nginx
 
-`Nginx` (engine x) is an HTTP and reverse proxy server, a mail proxy server, and a generic TCP/UDP proxy server. In this tutorial, we use `nginx` to direct traffic to our server. `Nginx` can be really helpful in scenarios like running our app on multiple threads, and it performs very well so we don't need to worry about it slowing down our app. More details about `nginx` can be found [here](https://nginx.org/en/).
+`Nginx` (engine x) is an HTTP and reverse proxy server, a mail proxy server, and a generic TCP/UDP proxy server. In this tutorial, we use `nginx` to direct traffic to our application. `Nginx` can be really helpful in scenarios like running our app on multiple threads, and it performs very well so we don't need to worry about it slowing down our app. More details about `nginx` can be found [here](https://nginx.org/en/).
 
 ## Installing nginx
 
@@ -491,7 +513,7 @@ sudo rm /etc/nginx/site-enabled/default
 sudo ln -s /etc/nginx/sites-available/items-rest.conf /etc/nginx/sites-enabled/
 ```
 
-We need to remove the default file since `nginx` will look at this file by default. We want `nginx` to look at our config instead, thus we added a soft link between our config file and the `site-enabled` folder.
+We need to remove the default file since `nginx` will look at this file by default. We want `nginx` to look at our config file instead, thus we added a soft link between our config file and the `site-enabled` folder.
 
 ## Running our app
 
