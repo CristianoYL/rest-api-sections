@@ -7,7 +7,7 @@ In this tutorial, we will not cover how to set up a server on any hosting platfo
 # Quick links
 In this tutorial, we will assume you have a server set up already, and we will introduce the deployment process in the following order:
 
-- [Connecting to the server using `SSH`](DigitalOcean%20Tutorial.md#connecting-to-our-server).
+- [Connecting to the server using `SSH`](How%20To%20Deploy%20Python%20App%20Using%20uWSGI%20And%20Nginx.md#connecting-to-our-server).
 - [Creating and configuring a `UNIX` user](How%20To%20Deploy%20Python%20App%20Using%20uWSGI%20And%20Nginx.md#creating-another-user).
 - [Setting up `PostgreSQL` database](How%20To%20Deploy%20Python%20App%20Using%20uWSGI%20And%20Nginx.md#configuring-postgres).
 - [Getting project code from `GitHub`](How%20To%20Deploy%20Python%20App%20Using%20uWSGI%20And%20Nginx.md#getting-code-from-github).
